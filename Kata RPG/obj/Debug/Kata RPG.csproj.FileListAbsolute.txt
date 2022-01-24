@@ -1,6 +1,0 @@
-/Users/jordanbrown/RiderProjects/Kata RPG/Kata RPG/bin/Debug/Kata_RPG.exe
-/Users/jordanbrown/RiderProjects/Kata RPG/Kata RPG/bin/Debug/Kata_RPG.pdb
-/Users/jordanbrown/RiderProjects/Kata RPG/Kata RPG/obj/Debug/Kata RPG.csprojAssemblyReference.cache
-/Users/jordanbrown/RiderProjects/Kata RPG/Kata RPG/obj/Debug/Kata RPG.csproj.CoreCompileInputs.cache
-/Users/jordanbrown/RiderProjects/Kata RPG/Kata RPG/obj/Debug/Kata_RPG.exe
-/Users/jordanbrown/RiderProjects/Kata RPG/Kata RPG/obj/Debug/Kata_RPG.pdb

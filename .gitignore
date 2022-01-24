@@ -11,3 +11,11 @@
 /dataSources.local.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+#
+.idea
+.git
+/packages/
+.DS_Store
+*/bin
+*/obj
+/.vs

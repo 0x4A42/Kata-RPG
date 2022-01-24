@@ -79,11 +79,18 @@ namespace Kata_RPG
         {
             if (this != target)
             {
-                var rand = new Random();
-                var damageDealt = rand.Next(MinDamageHeal, MaxDamageHeal);
-                var damageAfterMitigation = _combatEngine.CalculateMitigation(this, target, damageDealt);
-                Console.WriteLine("{0} deals {1} to {2}.", Name, damageAfterMitigation, target.Name);
-                target.ReceiveDamage(damageAfterMitigation); 
+                if (target.Health == 0)
+                {
+                    Console.WriteLine("You cannot damage what is already dead.");
+                }else
+                {
+                    var rand = new Random();
+                    var damageDealt = rand.Next(MinDamageHeal, MaxDamageHeal);
+                    var damageAfterMitigation = _combatEngine.CalculateMitigation(this, target, damageDealt);
+                    Console.WriteLine("{0} deals {1} to {2}.", Name, damageAfterMitigation, target.Name);
+                    target.ReceiveDamage(damageAfterMitigation);
+                }
+                
             }
             else
             {
