@@ -20,13 +20,19 @@ namespace Kata_RPG_Tests
         public CharacterTests()
         {
             _characterToTest = new Character();
-            _characterToTestCustomValues = new Character(500, 40, false, "Jordan");
-            _characterToTestBoundaryValidation = new Character(-1, 61, true, "Jordan");
-            _characterToReceiveDamageTest = new Character(980, 50, true, "Callum");
-            _characterToReceiveDamageWithinLevel = new Character(500, 40, true, "Victor");
+            _characterToTestCustomValues = new Character(500, 40, "Jordan", "Melee");
+            _characterToTestBoundaryValidation = new Character(-1, 61, "Jordan", "Meeeeeleeeee");
+            _characterToReceiveDamageTest = new Character(980, 50, "Callum", "Ranged");
+            _characterToReceiveDamageWithinLevel = new Character(500, 40, "Victor", "Melee");
             _combatEngine = new CombatEngine();
-            _characterToReceiveDamage5LevelsAbove = new Character(980, 50, true, "Callum");
-            _characterToReceiveDamage5LevelsBelow = new Character(500, 30, true, "Victor");
+            _characterToReceiveDamage5LevelsAbove = new Character(980, 50, "Callum", "Ranged");
+            _characterToReceiveDamage5LevelsBelow = new Character(500, 30, "Victor", "Ranged");
+        }
+        
+        [Fact]
+        public void CharacterNameTest()
+        {
+            Assert.Equal("Victor", _characterToReceiveDamage5LevelsBelow.Name);
         }
         [Fact]
         public void CharacterHealthTest()
@@ -74,6 +80,10 @@ namespace Kata_RPG_Tests
         [Fact]
         public void CharacterIsAliveTestCustom()
         {
+            while (_characterToTestCustomValues.IsAlive)
+            {
+                _characterToTestBoundaryValidation.DealDamage(_characterToTestCustomValues);
+            }
             Assert.False(_characterToTestCustomValues.IsAlive);
         }
 
@@ -113,7 +123,25 @@ namespace Kata_RPG_Tests
         public void TestHealing()
         {
             _characterToReceiveDamageWithinLevel.Heal();
-            Assert.NotEqual(500, _characterToReceiveDamageWithinLevel.Health);
+            Assert.True(_characterToReceiveDamageWithinLevel.Health > 500);
+        }
+        
+        [Fact]
+        public void TestCombatTypeMelee()
+        {
+           Assert.Equal(CombatType.Melee, _characterToTestCustomValues.CombatType);
+        }
+        
+        [Fact]
+        public void TestCombatTypeRanged()
+        {
+            Assert.Equal(CombatType.Ranged, _characterToReceiveDamage5LevelsAbove.CombatType);
+        }
+        
+        [Fact]
+        public void TestCombatTypeDefault()
+        {
+            Assert.Equal(CombatType.Melee, _characterToTestBoundaryValidation.CombatType);
         }
     }
 }

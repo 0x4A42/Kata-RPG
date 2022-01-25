@@ -2,9 +2,18 @@ using System;
 
 namespace Kata_RPG
 {
+    public enum CombatType
+    {
+        Melee,
+        Ranged
+    }
+
     public class Character
     {
-
+        private const int MinNameLength = 0;
+        private const int MaxNameLength = 20;
+        private const int MeleeRange = 2;
+        private const int RangedRange = 20;
         private const int MinHealth = 0;
         private const int MaxHealth = 1000;
         private const int MinLevel = 1;
@@ -16,9 +25,10 @@ namespace Kata_RPG
         public int Health { get; private set; }
         public int Level { get; private set; }
         public bool IsAlive { get; private set; }
-
         public string Name { get; private set; }
-        
+        public CombatType CombatType { get; private set; }
+        public int CharacterRange { get; private set; }
+
         public Character()
         {
             Health = 1000;
@@ -26,16 +36,17 @@ namespace Kata_RPG
             IsAlive = true;
             Name = "Hero";
             _combatEngine = new CombatEngine();
-
+            SetCombatType("Melee");
         }
 
-        public Character(int health, int level, bool isAlive, string name)
+        public Character(int health, int level, string name, string combatType)
         {
             SetHealth(health);
             SetLevel(level);
-            IsAlive = isAlive;
+            IsAlive = true;
             SetName(name);
             _combatEngine = new CombatEngine();
+            SetCombatType(combatType);
         }
 
         private void SetHealth(int health)
@@ -43,36 +54,95 @@ namespace Kata_RPG
             if (health >= MinHealth && health <= MaxHealth)
             {
                 Health = health;
-            } else
+            }
+            else
             {
                 Health = 1000;
-                Console.Error.Write("Cannot set health outside the bounds of {0}-{1}. Defaulting to 1000.", MinHealth, MaxHealth);
+                Console.Error.Write("Cannot set health outside the bounds of {0}-{1}. Defaulting to 1000.", MinHealth,
+                    MaxHealth);
             }
         }
-        
+
         private void SetLevel(int level)
         {
             if (level >= MinLevel && level <= MaxLevel)
             {
                 Level = level;
-            } else
+            }
+            else
             {
-                Console.Error.Write("Cannot set level outside the bounds of {0}-{1}. Defaulting to 1.", MinLevel, MaxLevel);
+                Console.Error.Write("Cannot set level outside the bounds of {0}-{1}. Defaulting to 1.", MinLevel,
+                    MaxLevel);
                 Level = 1;
             }
         }
 
         private void SetName(string name)
         {
-            if (name.Length > 0)
+            if (name.Length > MinNameLength && name.Length <= MaxNameLength)
             {
                 Name = name;
             }
             else
             {
-                Console.Error.Write("Name cannot be blank, defaulting to 'Hero'.");
+                Console.Error.Write("Name cannot be less than {0} or greater than {1}, defaulting to 'Hero'.",
+                    MinNameLength, MaxNameLength);
                 Name = "Hero";
             }
+        }
+
+        private void SetCombatType(string combatType)
+        {
+            switch (combatType.ToUpper())
+            {
+                case "MELEE":
+                    CombatType = CombatType.Melee;
+                    break;
+                case "RANGED":
+                    CombatType = CombatType.Ranged;
+                    break;
+                default:
+                    Console.WriteLine("Sorry, the class you entered could not be recognised. Defaulting to Melee." +
+                                      "You can change this through the menu.");
+                    CombatType = CombatType.Melee;
+                    break;
+            }
+
+            SetCharacterRange();
+        }
+
+        private void SetCharacterRange()
+        {
+            switch (CombatType)
+            {
+                case CombatType.Melee:
+                    CharacterRange = MeleeRange;
+                    break;
+                case CombatType.Ranged:
+                    CharacterRange = RangedRange;
+                    break;
+                default:
+                    CharacterRange = MeleeRange;
+                    break;
+            }
+        }
+
+        public bool DetermineIfCanAttack(Character attacker, Character target)
+        {
+            switch (attacker.CombatType)
+            {
+                case CombatType.Melee when target.CombatType == CombatType.Melee:
+                    return true;
+                case CombatType.Melee when target.CombatType == CombatType.Ranged:
+                    return false;
+                case CombatType.Ranged when target.CombatType == CombatType.Ranged:
+                    return true;
+                case CombatType.Ranged when target.CombatType == CombatType.Ranged:
+                    return true;
+                default:
+                    return false;
+            }
+           
         }
 
         public void DealDamage(Character target)
@@ -81,22 +151,28 @@ namespace Kata_RPG
             {
                 if (target.Health == 0)
                 {
-                    Console.WriteLine("You cannot damage what is already dead.");
-                }else
-                {
-                    var rand = new Random();
-                    var damageDealt = rand.Next(MinDamageHeal, MaxDamageHeal);
-                    var damageAfterMitigation = _combatEngine.CalculateMitigation(this, target, damageDealt);
-                    Console.WriteLine("{0} deals {1} to {2}.", Name, damageAfterMitigation, target.Name);
-                    target.ReceiveDamage(damageAfterMitigation);
+                    Console.WriteLine("You cannot damage that which is already dead.");
                 }
-                
+                else
+                {
+                    if (DetermineIfCanAttack(this, target))
+                    {
+                        var rand = new Random();
+                        var damageAfterMitigation = _combatEngine.CalculateMitigation(this, target,
+                            rand.Next(MinDamageHeal, MaxDamageHeal));
+                        Console.WriteLine("{0} deals {1} to {2}.", Name, damageAfterMitigation, target.Name);
+                        target.ReceiveDamage(damageAfterMitigation);  
+                    }
+                    else
+                    {
+                        Console.WriteLine("{0} is not in range to attack {1}.", Name, target.Name);
+                    }
+                }
             }
             else
             {
                 Console.WriteLine("You cannot damage yourself!");
             }
-          
         }
 
         public void Heal()
@@ -106,7 +182,7 @@ namespace Kata_RPG
             ReceiveHealing(healingToDo);
             Console.WriteLine("{0} heals for {1}.", Name, healingToDo);
         }
-        
+
         private void ReceiveHealing(int healingToReceive)
         {
             if (IsAlive)
@@ -126,10 +202,9 @@ namespace Kata_RPG
             }
         }
 
-       
+
         private void ReceiveDamage(int damageTaken)
         {
-            
             if (Health - damageTaken <= 0)
             {
                 Health = 0;
@@ -141,6 +216,5 @@ namespace Kata_RPG
                 Health = (Health - damageTaken);
             }
         }
-        
     }
 }
